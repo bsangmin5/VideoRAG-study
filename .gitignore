@@ -1,9 +1,20 @@
+# Model checkpoints (DO NOT UPLOAD)
+VideoRAG-algorithm/MiniCPM-V-2_6-int4/
+VideoRAG-algorithm/faster-distil-whisper-large-v3/
+VideoRAG-algorithm/.checkpoints/
+
+# Runtime outputs
+videorag-workdir/
+test-workdir/
+
+# Python cache
 __pycache__/
 *.pyc
+.cache/
+.env
+
+# Model files
 *.pt
 *.pth
 *.ckpt
 *.bin
-.checkpoints/
-videorag-workdir/
-test-workdir/
