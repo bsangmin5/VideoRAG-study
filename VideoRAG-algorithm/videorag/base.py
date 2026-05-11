@@ -8,15 +8,25 @@ from ._utils import EmbeddingFunc
 
 @dataclass
 class QueryParam:
-    mode: Literal["local", "global", "naive"] = "global"
+    mode: Literal["local", "global", "hybrid", "naive", "videorag"] = "videorag"
+
+    # retrieval options
+    top_k: int = 3
+
+    # token limits
+    naive_max_token_for_text_unit: int = 12000
+    local_max_token_for_text_unit: int = 4000
+    local_max_token_for_local_context: int = 4800
+    global_max_token_for_community_report: int = 4000
+    global_max_token_for_global_context: int = 4800
+
+    # response options
     only_need_context: bool = False
+    only_need_prompt: bool = False
     response_type: str = "Multiple Paragraphs"
-    level: int = 2
-    top_k: int = 20
-    # naive search
-    naive_max_token_for_text_unit = 12000
-    # videorag search
-    only_need_context: bool = False
+
+    # VideoRAG options
+    wo_reference: bool = False
 
 
 TextChunkSchema = TypedDict(
@@ -52,15 +62,12 @@ class StorageNameSpace:
     global_config: dict
 
     async def index_start_callback(self):
-        """commit the storage operations after indexing"""
         pass
 
     async def index_done_callback(self):
-        """commit the storage operations after indexing"""
         pass
 
     async def query_done_callback(self):
-        """commit the storage operations after querying"""
         pass
 
 
@@ -73,9 +80,6 @@ class BaseVectorStorage(StorageNameSpace):
         raise NotImplementedError
 
     async def upsert(self, data: dict[str, dict]):
-        """Use 'content' field from value for embedding, use key as id.
-        If embedding_func is None, use 'embedding' field from value
-        """
         raise NotImplementedError
 
 
@@ -93,7 +97,6 @@ class BaseKVStorage(Generic[T], StorageNameSpace):
         raise NotImplementedError
 
     async def filter_keys(self, data: list[str]) -> set[str]:
-        """return un-exist keys"""
         raise NotImplementedError
 
     async def upsert(self, data: dict[str, T]):
@@ -142,7 +145,6 @@ class BaseGraphStorage(StorageNameSpace):
         raise NotImplementedError
 
     async def community_schema(self) -> dict[str, SingleCommunitySchema]:
-        """Return the community representation with report and nodes"""
         raise NotImplementedError
 
     async def embed_nodes(self, algorithm: str) -> tuple[np.ndarray, list[str]]:
